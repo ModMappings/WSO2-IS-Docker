@@ -8,6 +8,7 @@ jobs:
     name: Print
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Parse version
         id: extract_version
         run: echo "::set-output name=wso2-version::$(basename ${{on.rss.outputs.link}})"
