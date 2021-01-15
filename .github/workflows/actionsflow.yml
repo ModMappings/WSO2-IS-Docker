@@ -20,4 +20,4 @@ jobs:
       - name: Setup act
         uses: actionsflow/setup-act-for-actionsflow@v1
       - name: Run act
-        run: act --workflows ./dist/workflows --secret-file ./dist/.secrets --eventpath ./dist/event.json --env-file ./dist/.env -P ubuntu-latest=cruizba/ubuntu-dind -P ubuntu-18.04=cruizba/ubuntu-dind
+        run: act --workflows ./dist/workflows --secret-file ./dist/.secrets --eventpath ./dist/event.json --env-file ./dist/.env -P ubuntu-latest=modmappings/act-environment:v1 -P ubuntu-18.04=modmappings/act-environment:v1
