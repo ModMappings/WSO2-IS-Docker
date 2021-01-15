@@ -1,4 +1,5 @@
-﻿set -e
+﻿#!/bin/sh
+set -e
 
 # volume mounts
 config_volume=${WORKING_DIRECTORY}/wso2-config-volume
