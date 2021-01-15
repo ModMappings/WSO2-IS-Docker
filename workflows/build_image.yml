@@ -11,7 +11,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Parse version
         id: extract_version
-        run: echo "::set-output name=wso2-version::$(basename ${{on.rss.outputs.link}})"
+        run: |
+          version=$(basename ${{on.rss.outputs.link}})
+          version="${version:1}"
+          echo "::set-output name=wso2-version::$version"
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
