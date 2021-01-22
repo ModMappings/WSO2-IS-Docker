@@ -2,18 +2,12 @@
 FROM adoptopenjdk/openjdk11:jdk-11.0.9_11-alpine
 
 # set Docker image build arguments
-# build arguments for user/group configurations
-ARG USER=wso2carbon
-ARG USER_ID=802
-ARG USER_GROUP=wso2
-ARG USER_GROUP_ID=802
-ARG USER_HOME=/home/${USER}
 # build arguments for WSO2 product installation
 ARG WSO2_SERVER_NAME=wso2is
 ARG WSO2_SERVER_VERSION=5.11.0
 ARG WSO2_SERVER_REPOSITORY=product-is
 ARG WSO2_SERVER=${WSO2_SERVER_NAME}-${WSO2_SERVER_VERSION}
-ARG WSO2_SERVER_HOME=${USER_HOME}/${WSO2_SERVER}
+ARG WSO2_SERVER_HOME=/${WSO2_SERVER}
 ARG WSO2_SERVER_DIST_URL=https://github.com/wso2/${WSO2_SERVER_REPOSITORY}/releases/download/v${WSO2_SERVER_VERSION}/${WSO2_SERVER}.zip
 # build arguments for external artifacts
 ARG DNS_JAVA_VERSION=2.1.8
@@ -39,17 +33,10 @@ LABEL maintainer="ModMappings" \
       com.wso2.docker.source="https://github.com/wso2/docker-is/releases/tag/${WSO2_SERVER_VERSION}"
 
 # Update the environment.
-ENV ENV=${USER_HOME}"/.ashrc"
+ENV ENV="/root/.ashrc"
 
-# create the non-root user and group and set MOTD login message
-RUN \
-    addgroup -S -g ${USER_GROUP_ID} ${USER_GROUP} \
-    && adduser -S -u ${USER_ID} -h ${USER_HOME} -G ${USER_GROUP} ${USER} \
-    && echo ${MOTD} > "${ENV}"
-
-# copy init script to user home
-COPY --chown=wso2carbon:wso2 docker-entrypoint.sh ${USER_HOME}/
-RUN chmod +x ${USER_HOME}/docker-entrypoint.sh
+# create the MOTD login message
+RUN echo ${MOTD} > "${ENV}"
 
 # install required packages
 RUN apk add --no-cache netcat-openbsd
@@ -58,25 +45,25 @@ RUN apk add --no-cache rsync
 # add the WSO2 product distribution to user's home directory
 RUN \
     wget -O ${WSO2_SERVER}.zip "${WSO2_SERVER_DIST_URL}" \
-    && unzip -d ${USER_HOME} ${WSO2_SERVER}.zip \
-    && chown wso2carbon:wso2 -R ${WSO2_SERVER_HOME} \
-    && rm -f ${WSO2_SERVER}.zip
+    && unzip -d / ${WSO2_SERVER}.zip \
+    && rm -f ${WSO2_SERVER}.zip \
+    && mkdir /wso2-is-db-base \
+    && cp -r ${WSO2_SERVER_HOME}/repository/database/* /wso2-is-db-base/
 
-# set the user and work directory
-USER ${USER_ID}
-WORKDIR ${USER_HOME}
+# copy init script to user home
+COPY docker-entrypoint.sh ./
 
 # set environment variables
-ENV WORKING_DIRECTORY=${USER_HOME} \
+ENV WORKING_DIRECTORY=/ \
     WSO2_SERVER_HOME=${WSO2_SERVER_HOME}
 
 # expose ports
 EXPOSE 4000 9763 9443
 
 # expose config mounting point, artifact mounting point and h2 database mount point for persistence.
-VOLUME ${USER_HOME}/wso2-config-volume
-VOLUME ${USER_HOME}/wso2-artifact-volume
+VOLUME /wso2-config-volume
+VOLUME /wso2-artifact-volume
 VOLUME ${WSO2_SERVER_HOME}/repository/database
 
 # initiate container and start WSO2 Carbon server
-ENTRYPOINT ["/home/wso2carbon/docker-entrypoint.sh"]
+ENTRYPOINT /docker-entrypoint.sh

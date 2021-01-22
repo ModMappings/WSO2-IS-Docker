@@ -30,7 +30,6 @@ jobs:
         with:
           context: ./docker
           file: ./docker/Dockerfile
-          platforms: linux/amd64
           push: true
           tags: modmappings/docker-wso2-is:${{ steps.extract_version.outputs.wso2-version }}
           build-args: |
