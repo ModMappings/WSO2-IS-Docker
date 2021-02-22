@@ -51,7 +51,9 @@ RUN \
     && cp -r ${WSO2_SERVER_HOME}/repository/database/* /wso2-is-db-base/
 
 # copy init script to user home
-COPY docker-entrypoint.sh ./
+COPY docker-entrypoint.sh /
+RUN chmod +x /docker-entrypoint.sh
+RUN dos2unix /docker-entrypoint.sh
 
 # set environment variables
 ENV WORKING_DIRECTORY=/ \
